@@ -6,8 +6,9 @@ from pymongo import MongoClient
 
 fake = Faker(['de_DE'])
 def create_client():
-    rand = fake.random_int(0, 6)
+    rand = fake.random_int(0, 5)
     person = {}
+    person["creation_date"] = fake.date()
     person['name'] = fake.name()
     person['age'] = fake.random_int(18, 80)
     match rand:
@@ -21,7 +22,6 @@ def create_client():
             person['job'] = fake.job()
         case 5:
             person['company'] = fake.company()
-
     return person
 
 
@@ -30,7 +30,6 @@ if __name__ == '__main__':
     password = urllib.parse.quote('app_user_password')
     database = 'explore-db'
     uri = 'mongodb://%s:%s@localhost:27017/%s'
-    print(uri)
     client = MongoClient(uri % (username, password, database))
 
     try :
@@ -45,9 +44,14 @@ if __name__ == '__main__':
         record_count = collection.count_documents({})
         print(f'Total records in collection: {record_count}')
 
-        record_with_company = collection.count_documents({'company': {'$exists': True}})
-        print(f'Total records with company: {record_with_company}')
+        record_with_company_count = collection.count_documents({'person.company': {'$exists': True}})
+        print(f'Total records with company: {record_with_company_count}')
 
+        records = collection.find({'company': {'$exists': True}})
+        print(f'First record with company: {records.next()}')
+
+        result = collection.insert_one(create_client())
+        print(result)
     except Exception as e:
         print()
         raise Exception('Caught the following exception: ', e)
