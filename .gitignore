@@ -163,3 +163,5 @@ cython_debug/
 
 # Mongo mount point
 data
+images
+*.jpg
