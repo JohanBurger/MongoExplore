@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, g, jsonify, make_response, request
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 
-from MongoExplore.People_API.People.db import get_person_by_id, create_person
+from People_API.People.db import get_person_by_id, create_person
 
 people = Blueprint('people', __name__, url_prefix='/people')
 
