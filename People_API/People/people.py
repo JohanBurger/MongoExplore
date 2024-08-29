@@ -1,11 +1,12 @@
 import os
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, current_app, g, jsonify, make_response, request
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 
-from MongoExplore.People_API.People.db import get_person_by_id, create_person
+from People_API.People.db import get_person_by_id, create_person
 
 people = Blueprint('people', __name__, url_prefix='/people')
 
@@ -41,6 +42,9 @@ def get(person_id):
 #         return make_response(jsonify({'error': 'Not created'}), HTTPStatus.INTERNAL_SERVER_ERROR)
 #     return make_response(jsonify({'_id': str(object_id)}), HTTPStatus.CREATED)
 
+def create_timestamped_filename(filename):
+    return f"{datetime.now().timestamp()}_{secure_filename(filename)}"
+
 @people.route('/', methods=['POST'])
 def upload_file():
     if 'image' not in request.files:
@@ -49,7 +53,7 @@ def upload_file():
     if file.filename == '':
         return make_response(jsonify({'error': 'No selected file'}), HTTPStatus.BAD_REQUEST)
     # TODO More validation - check extension, size, etc.
-    filename = secure_filename(file.filename)
+    filename = create_timestamped_filename(file.filename)
     upload_folder = os.path.abspath(current_app.config['UPLOAD_FOLDER'])
     path = os.path.join(upload_folder, filename)
     file.save(path)
